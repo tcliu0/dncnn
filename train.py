@@ -18,6 +18,7 @@ tf.app.flags.DEFINE_integer('epochs', 10, 'Number of epochs to train.')
 tf.app.flags.DEFINE_integer("batch_size", 100, "Batch size to use during training.")
 tf.app.flags.DEFINE_string("train_dir", "train", "Training directory to save the model parameters (default: ./train).")
 tf.app.flags.DEFINE_string("log_dir", "log", "Path to store log and flag files (default: ./log)")
+tf.app.flags.DEFINE_bool("small_train_set", False, "Use a small subset of the train set.")
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -44,7 +45,7 @@ def main(_):
     file_handler = logging.FileHandler(os.path.join(FLAGS.log_dir, "log.txt"))
     logging.getLogger().addHandler(file_handler)
     
-    dataset = load_dataset()
+    dataset = load_dataset(FLAGS.small_train_set)
 
     denoise = get_model(FLAGS.model)(FLAGS)
 

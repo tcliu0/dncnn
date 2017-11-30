@@ -12,6 +12,7 @@ class DenoiseSystem(object):
         # Set up placeholder tokens
         self.im_placeholder = tf.placeholder(tf.float32, (None, self.flags.height, self.flags.width, self.flags.channels))
         self.gt_placeholder = tf.placeholder(tf.float32, (None, self.flags.height, self.flags.width, self.flags.channels))
+        self.train_phase = tf.placeholder(tf.bool)
 
         with tf.variable_scope('denoise'):
             self.setup_system()
@@ -37,7 +38,7 @@ class DenoiseSystem(object):
             self.psnr = -10 * tf.log(mse) / tf.log(10.)
 
     def optimize(self, session, dataset, epoch):
-        input_feed = {}
+        input_feed = {self.train_phase: True}
         output_feed = [self.train_op, self.loss, self.norm]
 
         train, loader = dataset
@@ -56,8 +57,8 @@ class DenoiseSystem(object):
         return total_loss
 
     def predict(self, session, test_data):
-        input_feed = {}
-        output_feed = [self.out]
+        input_feed = {self.train_phase: False}
+        output_feed = self.out
 
         test, loader = test_data
 
@@ -67,7 +68,7 @@ class DenoiseSystem(object):
         return result
 
     def evaluate(self, session, dataset):
-        input_feed = {}
+        input_feed = {self.train_phase: False}
         output_feed = [self.loss, self.psnr]
 
         test, loader = dataset

@@ -3,17 +3,20 @@ import re
 import logging
 from scipy import misc
 
-def load_dataset():
+def load_dataset(small_train_set=False):
     def loader(key):
         fname = 'dataset/%s/%s_%s_%s.bmp' % key
         im = misc.imread(fname) / 255.0
         return im
 
     isos = ['iso400', 'iso1600', 'iso6400', 'iso25k6', 'iso102k']
-    objs = ['cereal', 'cereal2', 'chairs', 'clutter', 'clutter2',
-            'clutter3', 'fan', 'flowers', 'globe', 'junkbox',
-            'labbench', 'lens', 'mugpot', 'numpad', 'partsbin',
-            'shoes', 'teapot', 'whtboard', 'wine', 'wirerack']
+    if small_train_set:
+        objs = ['cereal']
+    else:
+        objs = ['cereal', 'cereal2', 'chairs', 'clutter', 'clutter2',
+                'clutter3', 'fan', 'flowers', 'globe', 'junkbox',
+                'labbench', 'lens', 'mugpot', 'numpad', 'partsbin',
+                'shoes', 'teapot', 'whtboard', 'wine', 'wirerack']
     
     train_data = []
     logging.info('Generating train tuples...')

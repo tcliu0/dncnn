@@ -71,9 +71,9 @@ def main(_):
         dataset = test if FLAGS.test_set else dev
         prog = Progbar(target=len(dataset))
         for i, (image, _) in enumerate(dataset):
-            result = denoise.predict(sess, (image, loader))
+            result = np.array(denoise.predict(sess, (image, loader)) * 255, dtype=np.uint8)
             filename = "%s_%s_%s_%s.bmp" % image
-            misc.imsave(os.path.join(FLAGS.output_dir, filename), result[0])
+            misc.imsave(os.path.join(FLAGS.output_dir, filename), result)
             prog.update(i+1)
 
     print('Done!')

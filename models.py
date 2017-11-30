@@ -1,6 +1,7 @@
 from ols_denoise_model import OLSDenoiseSystem
 from mean_med_denoise_model import MeanMedDenoiseSystem
 from dncnn_denoise_model import DnCNNDenoiseSystem
+from identity_model import IdentitySystem
 
 def get_model(model):
     if model == 'ols':
@@ -9,5 +10,7 @@ def get_model(model):
         return MeanMedDenoiseSystem
     elif model == 'dncnn':
         return DnCNNDenoiseSystem
+    elif model == 'identity':
+        return IdentitySystem    
     else:
         raise ValueError('Unknown model')
