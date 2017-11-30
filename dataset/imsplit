@@ -1,0 +1,36 @@
+#!/bin/bash
+
+u="512"
+
+if [ -z "$1" ]
+then
+    echo "No argument supplied"
+elif [ ! -d "$1" ]
+then
+    echo "Directory doesn't exist"
+else
+    for f in $1/*.bmp
+    do
+	w=$(identify -format "%w" $f)
+	h=$(identify -format "%h" $f)
+	if [ $w -gt $u ] && [ $h -gt $u ]
+	then
+	    nh=$((w/u))
+	    nv=$((h/u))
+	    dh=$(((w-nh*u)/2))
+	    dv=$(((h-nv*u)/2))
+	    for y in $(seq 0 $((nv-1)))
+	    do
+		for x in $(seq 0 $((nh-1)))
+		do
+		    dirname=$(dirname $f)
+		    basename=$(basename $f)
+		    filename=${basename%.*}
+		    convert -crop $u"x"$u"+"$((dh+u*x))"+"$((dv+u*y)) $f $dirname"/"$filename"_"$y"_"$x".bmp"
+		done
+	    done
+	fi
+    done    
+fi
+
+
