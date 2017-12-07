@@ -49,7 +49,7 @@ def main(_):
 
     train, dev, test, loader = load_dataset()
 
-    denoise = get_model(FLAGS.model_name)(FLAGS)
+    denoise = get_model(FLAGS.model)(FLAGS)
     
     train_dir = os.path.join(FLAGS.train_dir, denoise.model_name)
     if not os.path.exists(train_dir):
@@ -63,11 +63,12 @@ def main(_):
         initialize_model(sess, denoise, train_dir)
         
         total_loss, all_psnr = denoise.evaluate(sess, (test if FLAGS.test_set else dev, loader))
-        print total_loss
+        avg_psnr = sum([p[1] for p in all_psnr]) / len(all_psnr)
+        print 'Total loss: %f' % total_loss
+        print 'Average PSNR: %f' % avg_psnr
         for iso in ['iso400', 'iso1600', 'iso6400', 'iso25k6', 'iso102k']:
-            print iso
             psnr = [psnr for ((_, i, _, _), psnr) in all_psnr if i == iso]
-            print sum(psnr) / len(psnr)
+            print '%s: %f' % (iso, sum(psnr) / len(psnr))
 
 if __name__ == '__main__':
     tf.app.run()    
