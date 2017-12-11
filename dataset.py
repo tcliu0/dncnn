@@ -1,12 +1,13 @@
 import os
 import re
 import logging
+import numpy as np
 from scipy import misc
 
 def load_dataset(small_train_set=False):
     def loader(key):
         fname = 'dataset/%s/%s_%s_%s.bmp' % key
-        im = misc.imread(fname) / 255.0
+        im = (misc.imread(fname) / 255.0).astype(np.float32)
         return im
 
     isos = ['iso400', 'iso1600', 'iso6400', 'iso25k6', 'iso102k']

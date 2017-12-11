@@ -62,13 +62,16 @@ def main(_):
     with tf.Session() as sess:
         initialize_model(sess, denoise, train_dir)
         
-        total_loss, all_psnr = denoise.evaluate(sess, (test if FLAGS.test_set else dev, loader))
-        avg_psnr = sum([p[1] for p in all_psnr]) / len(all_psnr)
+        total_loss, metrics = denoise.evaluate(sess, (test if FLAGS.test_set else dev, loader))
+        avg_psnr = sum([p for _, p, s in metrics]) / len(metrics)
+        avg_ssim = sum([s for _, p, s in metrics]) / len(metrics)
         print 'Total loss: %f' % total_loss
         print 'Average PSNR: %f' % avg_psnr
+        print 'Average SSIM: %f' % avg_ssim
         for iso in ['iso400', 'iso1600', 'iso6400', 'iso25k6', 'iso102k']:
-            psnr = [psnr for ((_, i, _, _), psnr) in all_psnr if i == iso]
-            print '%s: %f' % (iso, sum(psnr) / len(psnr))
+            psnr = [p for ((_, i, _, _), p, s) in metrics if i == iso]
+            ssim = [s for ((_, i, _, _), p, s) in metrics if i == iso]
+            print '%s: %f\t%f' % (iso, sum(psnr) / len(psnr), sum(ssim) / len(ssim))
 
 if __name__ == '__main__':
     tf.app.run()    

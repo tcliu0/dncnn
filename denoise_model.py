@@ -1,6 +1,7 @@
 import os
 import logging
 import tensorflow as tf
+from skimage.measure import compare_ssim as ssim
 
 from util import Progbar, get_minibatches
 
@@ -69,24 +70,25 @@ class DenoiseSystem(object):
 
     def evaluate(self, session, dataset):
         input_feed = {self.train_phase: False}
-        output_feed = [self.loss, self.psnr]
+        output_feed = [self.loss, self.psnr, self.out]
 
         test, loader = dataset
 
         total_loss = 0.
-        all_psnr = []
+        metrics = []
 
         prog = Progbar(target=(len(test) - 1) / self.flags.batch_size + 1)
         for i, batch in enumerate(get_minibatches(test, self.flags.batch_size, shuffle=False)):
             input_feed[self.im_placeholder] = [loader(b[0]) for b in batch]
             input_feed[self.gt_placeholder] = [loader(b[1]) for b in batch]
 
-            loss, psnr = session.run(output_feed, input_feed)
+            loss, psnr, out = session.run(output_feed, input_feed)
             total_loss += loss * len(batch)
-            all_psnr.extend(zip([b[0] for b in batch], psnr))
+            all_ssim = [ssim(im, gt, multichannel=True) for im, gt in zip(out, input_feed[self.gt_placeholder])]
+            metrics.extend(zip([b[0] for b in batch], psnr, all_ssim))
             prog.update(i+1, exact=[("total loss", total_loss)])
 
-        return total_loss, all_psnr
+        return total_loss, metrics
 
     def train(self, session, dataset, start_epoch=0):
         train_dir = os.path.join(self.flags.train_dir, self.model_name)
