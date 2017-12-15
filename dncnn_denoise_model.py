@@ -6,7 +6,7 @@ from util import Progbar, get_minibatches
 from denoise_model import DenoiseSystem
 
 class DnCNNDenoiseSystem(DenoiseSystem):
-    def __init__(self, flags, D=14, H=32, K=7):
+    def __init__(self, flags, D=8, H=128, K=5):
         self.model_name = 'dncnn_denoise'
         self.D = D
         self.H = H
@@ -63,7 +63,7 @@ class DnCNNDenoiseSystem(DenoiseSystem):
         resid = super(DnCNNDenoiseSystem, self).predict(session, test_data)
         image, loader = test_data
         return loader(image) - resid
-        #return 0.5 - result
+        #return 0.5 - resid
 
     def evaluate(self, session, dataset):
         input_feed = {self.train_phase: False}
